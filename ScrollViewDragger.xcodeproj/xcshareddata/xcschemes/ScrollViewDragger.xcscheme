@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DD9E9AE7FD9558733E84F0F0BBAF2E81"
-               BuildableName = "Demo.app"
-               BlueprintName = "Demo"
+               BlueprintIdentifier = "DA25B54A44D9E280CC74DFD62F3CC4C7"
+               BuildableName = "ScrollViewDragger.framework"
+               BlueprintName = "ScrollViewDragger"
                ReferencedContainer = "container:ScrollViewDragger.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,15 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD9E9AE7FD9558733E84F0F0BBAF2E81"
-            BuildableName = "Demo.app"
-            BlueprintName = "Demo"
-            ReferencedContainer = "container:ScrollViewDragger.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -51,16 +42,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD9E9AE7FD9558733E84F0F0BBAF2E81"
-            BuildableName = "Demo.app"
-            BlueprintName = "Demo"
+            BlueprintIdentifier = "DA25B54A44D9E280CC74DFD62F3CC4C7"
+            BuildableName = "ScrollViewDragger.framework"
+            BlueprintName = "ScrollViewDragger"
             ReferencedContainer = "container:ScrollViewDragger.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -70,16 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DD9E9AE7FD9558733E84F0F0BBAF2E81"
-            BuildableName = "Demo.app"
-            BlueprintName = "Demo"
+            BlueprintIdentifier = "DA25B54A44D9E280CC74DFD62F3CC4C7"
+            BuildableName = "ScrollViewDragger.framework"
+            BlueprintName = "ScrollViewDragger"
             ReferencedContainer = "container:ScrollViewDragger.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
