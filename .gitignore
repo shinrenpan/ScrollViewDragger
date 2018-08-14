@@ -2,7 +2,7 @@
 # Created by https://www.gitignore.io/api/xcode,macos,swift,fastlane,carthage,cocoapods,objective-c
 
 ### Framework ###
-*.framework
+*.framework*
 
 ### Carthage ###
 # Carthage
