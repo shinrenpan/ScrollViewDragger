@@ -86,19 +86,11 @@ extension WithAutoResizeViewController: UIScrollViewDelegate
 
 // MARK: - ScrollViewDraggerDelegate
 
-extension WithAutoResizeViewController: ScrollViewDraggerDelegate
+extension WithAutoResizeViewController: DraggerDelegate
 {
-    func dragger(_: ScrollViewDragger, beganIn _: UIScrollView, constraint _: NSLayoutConstraint?)
+    func dragger(_ dragger: ScrollViewDragger, endWith _: NSLayoutConstraint?)
     {
-    }
-
-    func dragger(_: ScrollViewDragger, changedIn _: UIScrollView, constraint _: NSLayoutConstraint?)
-    {
-    }
-
-    func dragger(_ dragger: ScrollViewDragger, endIn scrollView: UIScrollView, constraint _: NSLayoutConstraint?)
-    {
-        var frame: CGRect = scrollView.frame
+        var frame: CGRect = __tableView.frame
 
         if frame.origin.y < dragger.maximum / 2.0
         {
@@ -113,7 +105,29 @@ extension WithAutoResizeViewController: ScrollViewDraggerDelegate
 
         UIView.animate(withDuration: 0.2)
         {
-            scrollView.frame = frame
+            self.__tableView.frame = frame
+        }
+    }
+
+    func dragger(_ dragger: ScrollViewDragger,
+                 swipeTo direction: ScrollViewDragger.SwipeDirection,
+                 with _: NSLayoutConstraint?)
+    {
+        var frame: CGRect = __tableView.frame
+
+        switch direction
+        {
+            case .minimum:
+                dragger.dragble = false
+                frame.origin.y = dragger.minimum
+
+            case .maximum:
+                frame.origin.y = dragger.maximum
+        }
+
+        UIView.animate(withDuration: 0.2)
+        {
+            self.__tableView.frame = frame
         }
     }
 }

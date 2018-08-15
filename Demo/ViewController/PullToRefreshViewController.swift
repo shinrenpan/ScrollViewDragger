@@ -99,17 +99,9 @@ extension PullToRefreshViewController: UIScrollViewDelegate
 
 // MARK: - ScrollViewDraggerDelegate
 
-extension PullToRefreshViewController: ScrollViewDraggerDelegate
+extension PullToRefreshViewController: DraggerDelegate
 {
-    func dragger(_: ScrollViewDragger, beganIn _: UIScrollView, constraint _: NSLayoutConstraint?)
-    {
-    }
-
-    func dragger(_: ScrollViewDragger, changedIn _: UIScrollView, constraint _: NSLayoutConstraint?)
-    {
-    }
-
-    func dragger(_ dragger: ScrollViewDragger, endIn _: UIScrollView, constraint: NSLayoutConstraint?)
+    func dragger(_ dragger: ScrollViewDragger, endWith constraint: NSLayoutConstraint?)
     {
         // 使用 Autolayout 一定有 constraint.
         guard let constraint: NSLayoutConstraint = constraint
@@ -127,6 +119,34 @@ extension PullToRefreshViewController: ScrollViewDraggerDelegate
         else
         {
             constraint.constant = dragger.maximum
+        }
+
+        UIView.animate(withDuration: 0.2)
+        {
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    func dragger(_ dragger: ScrollViewDragger,
+                 swipeTo direction: ScrollViewDragger.SwipeDirection,
+                 with constraint: NSLayoutConstraint?)
+    {
+        // 使用 Autolayout 一定有 constraint.
+        guard let constraint: NSLayoutConstraint = constraint
+        else
+        {
+            return
+        }
+
+        dragger.dragble = false
+
+        switch direction
+        {
+            case .minimum:
+                constraint.constant = dragger.minimum
+
+            case .maximum:
+                constraint.constant = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)

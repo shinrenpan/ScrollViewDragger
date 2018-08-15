@@ -2,21 +2,15 @@
 //  Copyright (c) 2018年 shinren.pan@gmail.com All rights reserved.
 //
 
-// MARK: - Protocol
-
-public protocol ScrollViewDraggerDelegate: class
-{
-    func dragger(_ dragger: ScrollViewDragger, beganIn scrollView: UIScrollView, constraint: NSLayoutConstraint?)
-
-    func dragger(_ dragger: ScrollViewDragger, changedIn scrollView: UIScrollView, constraint: NSLayoutConstraint?)
-
-    func dragger(_ dragger: ScrollViewDragger, endIn scrollView: UIScrollView, constraint: NSLayoutConstraint?)
-}
-
 // MARK: - Class
 
 public final class ScrollViewDragger: NSObject
 {
+    public enum SwipeDirection
+    {
+        case minimum, maximum
+    }
+
     public var dragble: Bool = true
     {
         didSet
@@ -25,26 +19,25 @@ public final class ScrollViewDragger: NSObject
         }
     }
 
-    public weak var delegate: ScrollViewDraggerDelegate?
+    public weak var delegate: DraggerDelegate?
 
     public private(set) var minimum: CGFloat
     public private(set) var maximum: CGFloat
 
     private var __pan: UIPanGestureRecognizer
-
-    private weak var __scrollView: UIScrollView?
     private weak var __constraint: NSLayoutConstraint?
+    private weak var __scrollView: UIScrollView?
 
     public init(drag scrollView: UIScrollView,
                 minimum: CGFloat,
                 maximum: CGFloat,
                 constraint: NSLayoutConstraint? = nil,
-                delegate: ScrollViewDraggerDelegate? = nil)
+                delegate: DraggerDelegate? = nil)
     {
-        __scrollView = scrollView
         __constraint = constraint
         dragble = true
 
+        __scrollView = scrollView
         self.minimum = minimum
         self.maximum = maximum
         self.delegate = delegate
@@ -53,9 +46,9 @@ public final class ScrollViewDragger: NSObject
 
         super.init()
 
-        __pan.addTarget(self, action: #selector(__panGestureInScroller(_:)))
+        __pan.addTarget(self, action: #selector(__actionForPanGesture(_:)))
         __pan.delegate = self
-        __scrollView?.addGestureRecognizer(__pan)
+        scrollView.addGestureRecognizer(__pan)
     }
 }
 
@@ -74,7 +67,7 @@ extension ScrollViewDragger: UIGestureRecognizerDelegate
 
 private extension ScrollViewDragger
 {
-    @objc final func __panGestureInScroller(_ pan: UIPanGestureRecognizer)
+    @objc final func __actionForPanGesture(_ pan: UIPanGestureRecognizer)
     {
         guard
             let scrollView: UIScrollView = pan.view as? UIScrollView,
@@ -87,23 +80,23 @@ private extension ScrollViewDragger
 
         if let constraint: NSLayoutConstraint = __constraint
         {
-            __handleDragWithAutoLayout(scrollView, with: constraint)
+            __dragWithAutoLayout(in: scrollView, with: constraint)
         }
         else
         {
-            __handleDragWithAutoResizing(scrollView)
+            __dragWithAutoResizing(in: scrollView)
         }
     }
 }
 
 private extension ScrollViewDragger
 {
-    final func __handleDragWithAutoLayout(_ scrollView: UIScrollView, with constraint: NSLayoutConstraint)
+    final func __dragWithAutoLayout(in scrollView: UIScrollView, with constraint: NSLayoutConstraint)
     {
         switch __pan.state
         {
             case .began:
-                delegate?.dragger(self, beganIn: scrollView, constraint: constraint)
+                delegate?.dragger(self, beganWith: constraint)
 
             case .changed:
                 let translation = __pan.translation(in: scrollView)
@@ -121,22 +114,32 @@ private extension ScrollViewDragger
                 }
 
                 __pan.setTranslation(.zero, in: scrollView)
-                delegate?.dragger(self, changedIn: scrollView, constraint: constraint)
+                delegate?.dragger(self, changedWith: constraint)
 
             default:
-                delegate?.dragger(self, endIn: scrollView, constraint: constraint)
+                let velocity = __pan.velocity(in: scrollView)
+
+                if __isQuickSwipe(for: velocity)
+                {
+                    let direction: SwipeDirection = __direction(for: velocity)
+                    delegate?.dragger(self, swipeTo: direction, with: constraint)
+                }
+                else
+                {
+                    delegate?.dragger(self, endWith: constraint)
+                }
         }
     }
 }
 
 private extension ScrollViewDragger
 {
-    final func __handleDragWithAutoResizing(_ scrollView: UIScrollView)
+    final func __dragWithAutoResizing(in scrollView: UIScrollView)
     {
         switch __pan.state
         {
             case .began:
-                delegate?.dragger(self, beganIn: scrollView, constraint: nil)
+                delegate?.dragger(self, beganWith: nil)
 
             case .changed:
                 let translation = __pan.translation(in: scrollView)
@@ -154,10 +157,20 @@ private extension ScrollViewDragger
                 }
 
                 __pan.setTranslation(.zero, in: scrollView)
-                delegate?.dragger(self, changedIn: scrollView, constraint: nil)
+                delegate?.dragger(self, changedWith: nil)
 
             default:
-                delegate?.dragger(self, endIn: scrollView, constraint: nil)
+                let velocity = __pan.velocity(in: scrollView)
+
+                if __isQuickSwipe(for: velocity)
+                {
+                    let direction: SwipeDirection = __direction(for: velocity)
+                    delegate?.dragger(self, swipeTo: direction, with: nil)
+                }
+                else
+                {
+                    delegate?.dragger(self, endWith: nil)
+                }
         }
     }
 }
@@ -169,5 +182,39 @@ private extension ScrollViewDragger
         // 使用 _pan.isEnabled 來觸發 pan.state = .ended
         __pan.isEnabled = false
         __pan.isEnabled = true
+    }
+}
+
+private extension ScrollViewDragger
+{
+    final func __isQuickSwipe(for velocity: CGPoint) -> Bool
+    {
+        let magnitude = sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
+        let slideMultiplier = magnitude / 200
+
+        return slideMultiplier > 1.0
+    }
+}
+
+private extension ScrollViewDragger
+{
+    // UIPanGestureRecognizer 滑動方向.
+    // 參考 https://stackoverflow.com/questions/5187502/how-can-i-capture-which-direction-is-being-panned-using-uipangesturerecognizer
+    final func __direction(for velocity: CGPoint) -> SwipeDirection
+    {
+        let isVertical = fabs(velocity.y) > fabs(velocity.x)
+
+        var direction: SwipeDirection
+
+        if isVertical
+        {
+            direction = velocity.y > 0 ? .maximum : .minimum
+        }
+        else
+        {
+            direction = velocity.x > 0 ? .maximum : .minimum
+        }
+
+        return direction
     }
 }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		024650777A183035AA2B007834847364 /* ScrollViewDragger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4347C0CE4B86A0781BA2570D00183B4 /* ScrollViewDragger.swift */; };
+		0F6D45D9C424EAC9B36332800F0C5A97 /* DraggerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61946C81677EA6EF534BB127711226B7 /* DraggerDelegate.swift */; };
 		22EA4D7490E7BAFBEC3CDF7D1A1C4232 /* ScrollViewDragger.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7CE7B2905D6FBC3EFEE14BB263184AA3 /* ScrollViewDragger.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		42045544A2157B2F7E5F09BBD449BEC8 /* WithAutoLayoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8B92BF0136B9C4151635E19203F84D /* WithAutoLayoutViewController.swift */; };
 		4A31AC6C7B6C45D31D506D24B0B81597 /* ScrollViewDragger.h in Headers */ = {isa = PBXBuildFile; fileRef = 037A8E14EE7A2C702FE2D3E7EA138C13 /* ScrollViewDragger.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -52,6 +53,7 @@
 		5120CA28FFE4AE9135153BF0DF35E3BF /* WithAutoResizeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithAutoResizeViewController.swift; sourceTree = "<group>"; };
 		518D67C5F4241529BF7AA9EB589CFC0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5A8B92BF0136B9C4151635E19203F84D /* WithAutoLayoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithAutoLayoutViewController.swift; sourceTree = "<group>"; };
+		61946C81677EA6EF534BB127711226B7 /* DraggerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggerDelegate.swift; sourceTree = "<group>"; };
 		7CE7B2905D6FBC3EFEE14BB263184AA3 /* ScrollViewDragger.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ScrollViewDragger.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DEB27AA8DBC00CABCEBC7BFCD83491E /* PullToRefreshViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToRefreshViewController.swift; sourceTree = "<group>"; };
 		A9BAA4F38C3898CD50A5DFDB37AB8365 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 		226FA46F7A3EACBE633D2F73885646B2 /* ScrollViewDragger */ = {
 			isa = PBXGroup;
 			children = (
+				61946C81677EA6EF534BB127711226B7 /* DraggerDelegate.swift */,
 				16F3D1D7ED41D685920B0F75F8380E78 /* Info.plist */,
 				037A8E14EE7A2C702FE2D3E7EA138C13 /* ScrollViewDragger.h */,
 				C4347C0CE4B86A0781BA2570D00183B4 /* ScrollViewDragger.swift */,
@@ -263,6 +266,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F6D45D9C424EAC9B36332800F0C5A97 /* DraggerDelegate.swift in Sources */,
 				024650777A183035AA2B007834847364 /* ScrollViewDragger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

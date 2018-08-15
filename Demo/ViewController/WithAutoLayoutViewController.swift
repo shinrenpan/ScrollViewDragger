@@ -86,17 +86,9 @@ extension WithAutoLayoutViewController: UIScrollViewDelegate
 
 // MARK: - ScrollViewDraggerDelegate
 
-extension WithAutoLayoutViewController: ScrollViewDraggerDelegate
+extension WithAutoLayoutViewController: DraggerDelegate
 {
-    func dragger(_: ScrollViewDragger, beganIn _: UIScrollView, constraint _: NSLayoutConstraint?)
-    {
-    }
-
-    func dragger(_: ScrollViewDragger, changedIn _: UIScrollView, constraint _: NSLayoutConstraint?)
-    {
-    }
-
-    func dragger(_ dragger: ScrollViewDragger, endIn _: UIScrollView, constraint: NSLayoutConstraint?)
+    func dragger(_ dragger: ScrollViewDragger, endWith constraint: NSLayoutConstraint?)
     {
         // 使用 Autolayout 一定有 constraint.
         guard let constraint: NSLayoutConstraint = constraint
@@ -114,6 +106,34 @@ extension WithAutoLayoutViewController: ScrollViewDraggerDelegate
         else
         {
             constraint.constant = dragger.maximum
+        }
+
+        UIView.animate(withDuration: 0.2)
+        {
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    func dragger(_ dragger: ScrollViewDragger,
+                 swipeTo direction: ScrollViewDragger.SwipeDirection,
+                 with constraint: NSLayoutConstraint?)
+    {
+        // 使用 Autolayout 一定有 constraint.
+        guard let constraint: NSLayoutConstraint = constraint
+        else
+        {
+            return
+        }
+
+        switch direction
+        {
+            case .minimum:
+                dragger.dragble = false
+                constraint.constant = dragger.minimum
+
+            case .maximum:
+                dragger.dragble = true
+                constraint.constant = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
