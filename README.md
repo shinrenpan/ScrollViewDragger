@@ -52,13 +52,13 @@ dragger.dragble = false
 **Dragger 開始拖動**
 
 ```swift
-func dragger(_ dragger: ScrollViewDragger, beganIn scrollView: UIScrollView, constraint: NSLayoutConstraint?)
+func dragger(_ dragger: ScrollViewDragger, beganWith constraint: NSLayoutConstraint?)
 ```
 
 **Dragger 正在拖動**
 
 ```swift
-func dragger(_ dragger: ScrollViewDragger, changedIn scrollView: UIScrollView, constraint: NSLayoutConstraint?)
+func dragger(_ dragger: ScrollViewDragger, changedWith constraint: NSLayoutConstraint?)
 ```
 
 **Dragger 拖動結束**  
@@ -68,5 +68,19 @@ func dragger(_ dragger: ScrollViewDragger, changedIn scrollView: UIScrollView, c
 2. 拖動手勢不是 UIGestureRecognizerState.began 或是 UIGestureRecognizerState.changed
 
 ```swift
-func dragger(_ dragger: ScrollViewDragger, endIn scrollView: UIScrollView, constraint: NSLayoutConstraint?)
+func dragger(_ dragger: ScrollViewDragger, endWith constraint: NSLayoutConstraint?)
+```
+
+**Dragger 快速滑動**  
+當 Dragger 快速滑動時, 將觸發這個 function, 而不是拖動結束,  
+
+ScrollViewDragger.SwipeDirection 代表:
+
+1. minimum: 快速滑向最小值方向.
+2. maximum: 快速滑向最大值方向.
+
+```swift
+func dragger(_ dragger: ScrollViewDragger,
+             swipeTo direction: ScrollViewDragger.SwipeDirection,
+             with constraint: NSLayoutConstraint?)
 ```
