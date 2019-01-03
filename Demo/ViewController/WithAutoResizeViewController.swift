@@ -7,9 +7,9 @@ import UIKit
 
 final class WithAutoResizeViewController: UIViewController
 {
-    private var __dragger: ScrollViewDragger?
-    @IBOutlet private var __label: UILabel!
-    @IBOutlet private var __tableView: UITableView!
+    private var _dragger: ScrollViewDragger?
+    @IBOutlet private var _label: UILabel!
+    @IBOutlet private var _tableView: UITableView!
 }
 
 // MARK: - LifeCycle
@@ -20,7 +20,7 @@ extension WithAutoResizeViewController
     {
         super.viewDidLayoutSubviews()
 
-        if __dragger == nil
+        if _dragger == nil
         {
             __setupDragger()
         }
@@ -31,19 +31,14 @@ extension WithAutoResizeViewController
 
 extension WithAutoResizeViewController: UITableViewDataSource
 {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         return 10
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        guard let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "Cell")
-        else
-        {
-            fatalError()
-        }
-
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")!
         cell.textLabel?.text = "\(indexPath.row)"
 
         return cell
@@ -57,7 +52,7 @@ extension WithAutoResizeViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
         tableView.deselectRow(at: indexPath, animated: false)
-        __label.text = "Clicked at \(indexPath.row)"
+        _label.text = "\(indexPath.row)"
     }
 }
 
@@ -68,18 +63,18 @@ extension WithAutoResizeViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         // Dragger 可以拖拉時, 執行 dragger 拖拉.
-        if __dragger?.dragble == true
+        if _dragger?.draggable == true
         {
             return
         }
 
         // 當 TableView 可以滾動, 且 top 在最上方, 且向下滾到頂...
         // 就執行 dragger 拖拉.
-        let offsetY: CGFloat = scrollView.contentOffset.y
+        let offsetY = scrollView.contentOffset.y
 
         if offsetY < 0.0
         {
-            __dragger?.dragble = true
+            _dragger?.draggable = true
         }
     }
 }
@@ -88,46 +83,46 @@ extension WithAutoResizeViewController: UIScrollViewDelegate
 
 extension WithAutoResizeViewController: DraggerDelegate
 {
-    func dragger(_ dragger: ScrollViewDragger, endWith _: NSLayoutConstraint?)
+    func draggerDidFinishDrag(_ dragger: ScrollViewDragger)
     {
-        var frame: CGRect = __tableView.frame
+        var frame = _tableView.frame
 
         if frame.origin.y < dragger.maximum / 2.0
         {
-            // __top 回到最上方時, dragger 不能拖拉, 換能滾動 __tableView.
-            dragger.dragble = false
+            // 回到最上方時, dragger 不能拖拉, 換能滾動 _tableView.
+            dragger.draggable = false
             frame.origin.y = dragger.minimum
         }
         else
         {
+            dragger.draggable = true
             frame.origin.y = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
         {
-            self.__tableView.frame = frame
+            self._tableView.frame = frame
         }
     }
 
-    func dragger(_ dragger: ScrollViewDragger,
-                 swipeTo direction: ScrollViewDragger.SwipeDirection,
-                 with _: NSLayoutConstraint?)
+    func dragger(_ dragger: ScrollViewDragger, quickSwipeTo direction: ScrollViewDragger.SwipeDirection)
     {
-        var frame: CGRect = __tableView.frame
+        var frame = _tableView.frame
 
         switch direction
         {
             case .minimum:
-                dragger.dragble = false
+                dragger.draggable = false
                 frame.origin.y = dragger.minimum
 
             case .maximum:
+                dragger.draggable = true
                 frame.origin.y = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
         {
-            self.__tableView.frame = frame
+            self._tableView.frame = frame
         }
     }
 }
@@ -138,17 +133,13 @@ private extension WithAutoResizeViewController
 {
     final func __setupDragger()
     {
-        let minimum: CGFloat = 108.0
+        _dragger = ScrollViewDragger(
+            scrollView: _tableView,
+            minimum: 108,
+            maximum: view.bounds.height - view.safeAreaInsets.bottom - _tableView.rowHeight,
+            delegate: self
+        )
 
-        let maximum: CGFloat = {
-            view.bounds.height - view.safeAreaInsets.bottom - __tableView.rowHeight
-        }()
-
-        __dragger = ScrollViewDragger(drag: __tableView,
-                                      minimum: minimum,
-                                      maximum: maximum,
-                                      delegate: self)
-
-        __dragger?.dragble = false
+        _dragger?.draggable = false
     }
 }

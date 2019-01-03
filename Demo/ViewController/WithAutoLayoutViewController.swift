@@ -7,10 +7,10 @@ import UIKit
 
 final class WithAutoLayoutViewController: UIViewController
 {
-    private var __dragger: ScrollViewDragger?
-    @IBOutlet private var __label: UILabel!
-    @IBOutlet private var __tableView: UITableView!
-    @IBOutlet private var __top: NSLayoutConstraint!
+    private var _dragger: ScrollViewDragger?
+    @IBOutlet private var _label: UILabel!
+    @IBOutlet private var _tableView: UITableView!
+    @IBOutlet private var _top: NSLayoutConstraint!
 }
 
 /// MARK: - LifeCycle
@@ -20,7 +20,7 @@ extension WithAutoLayoutViewController
     {
         super.viewDidLayoutSubviews()
 
-        if __dragger == nil
+        if _dragger == nil
         {
             __setupDragger()
         }
@@ -31,21 +31,15 @@ extension WithAutoLayoutViewController
 
 extension WithAutoLayoutViewController: UITableViewDataSource
 {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         return 10
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        guard let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "Cell")
-        else
-        {
-            fatalError()
-        }
-
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")!
         cell.textLabel?.text = "\(indexPath.row)"
-
         return cell
     }
 }
@@ -57,7 +51,7 @@ extension WithAutoLayoutViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
         tableView.deselectRow(at: indexPath, animated: false)
-        __label.text = "Clicked at \(indexPath.row)"
+        _label.text = "\(indexPath.row)"
     }
 }
 
@@ -68,18 +62,18 @@ extension WithAutoLayoutViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         // Dragger 可以拖拉時, 執行 dragger 拖拉.
-        if __dragger?.dragble == true
+        if _dragger?.draggable == true
         {
             return
         }
 
-        // 當 TableView 可以滾動, 且 __top 在最上方, 且向下滾到頂...
+        // 當 TableView 可以滾動, 且 _top 在最上方, 且向下滾到頂...
         // 就執行 dragger 拖拉.
-        let offsetY: CGFloat = scrollView.contentOffset.y
+        let offsetY = scrollView.contentOffset.y
 
         if offsetY < 0.0
         {
-            __dragger?.dragble = true
+            _dragger?.draggable = true
         }
     }
 }
@@ -88,24 +82,18 @@ extension WithAutoLayoutViewController: UIScrollViewDelegate
 
 extension WithAutoLayoutViewController: DraggerDelegate
 {
-    func dragger(_ dragger: ScrollViewDragger, endWith constraint: NSLayoutConstraint?)
+    func draggerDidFinishDrag(_ dragger: ScrollViewDragger)
     {
-        // 使用 Autolayout 一定有 constraint.
-        guard let constraint: NSLayoutConstraint = constraint
-        else
+        if _top.constant < dragger.maximum / 2.0
         {
-            return
-        }
-
-        if constraint.constant < dragger.maximum / 2.0
-        {
-            // __top 回到最上方時, dragger 不能拖拉, 換能滾動 __tableView.
-            dragger.dragble = false
-            constraint.constant = dragger.minimum
+            // _top 回到最上方時, dragger 不能拖拉, 換能滾動 _tableView.
+            dragger.draggable = false
+            _top.constant = dragger.minimum
         }
         else
         {
-            constraint.constant = dragger.maximum
+            dragger.draggable = true
+            _top.constant = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
@@ -114,26 +102,17 @@ extension WithAutoLayoutViewController: DraggerDelegate
         }
     }
 
-    func dragger(_ dragger: ScrollViewDragger,
-                 swipeTo direction: ScrollViewDragger.SwipeDirection,
-                 with constraint: NSLayoutConstraint?)
+    func dragger(_ dragger: ScrollViewDragger, quickSwipeTo direction: ScrollViewDragger.SwipeDirection)
     {
-        // 使用 Autolayout 一定有 constraint.
-        guard let constraint: NSLayoutConstraint = constraint
-        else
-        {
-            return
-        }
-
         switch direction
         {
             case .minimum:
-                dragger.dragble = false
-                constraint.constant = dragger.minimum
+                dragger.draggable = false
+                _top.constant = dragger.minimum
 
             case .maximum:
-                dragger.dragble = true
-                constraint.constant = dragger.maximum
+                dragger.draggable = true
+                _top.constant = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
@@ -149,19 +128,13 @@ private extension WithAutoLayoutViewController
 {
     final func __setupDragger()
     {
-        let minimum: CGFloat = 44.0
+        _dragger = ScrollViewDragger(
+            scrollView: _tableView,
+            minimum: 44.0,
+            maximum: view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom - _tableView.rowHeight,
+            constraint: _top,
+            delegate: self)
 
-        // __top 最大值是下方保留 __tableView 高.
-        let maximum: CGFloat = {
-            view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom - __tableView.rowHeight
-        }()
-
-        __dragger = ScrollViewDragger(drag: __tableView,
-                                      minimum: minimum,
-                                      maximum: maximum,
-                                      constraint: __top,
-                                      delegate: self)
-
-        __dragger?.dragble = false
+        _dragger?.draggable = false
     }
 }

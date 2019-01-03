@@ -7,10 +7,10 @@ import UIKit
 
 final class PullToRefreshViewController: UIViewController
 {
-    private var __dragger: ScrollViewDragger?
-    @IBOutlet private var __label: UILabel!
-    @IBOutlet private var __tableView: UITableView!
-    @IBOutlet private var __top: NSLayoutConstraint!
+    private var _dragger: ScrollViewDragger?
+    @IBOutlet private var _label: UILabel!
+    @IBOutlet private var _tableView: UITableView!
+    @IBOutlet private var _top: NSLayoutConstraint!
 }
 
 // MARK: - LifeCycle
@@ -21,7 +21,7 @@ extension PullToRefreshViewController
     {
         super.viewDidLayoutSubviews()
 
-        if __dragger == nil
+        if _dragger == nil
         {
             __setupDragger()
         }
@@ -32,21 +32,15 @@ extension PullToRefreshViewController
 
 extension PullToRefreshViewController: UITableViewDataSource
 {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         return Int(arc4random() % 20) + 20
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        guard let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "Cell")
-        else
-        {
-            fatalError()
-        }
-
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")!
         cell.textLabel?.text = "\(indexPath.row)"
-
         return cell
     }
 }
@@ -58,7 +52,7 @@ extension PullToRefreshViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
         tableView.deselectRow(at: indexPath, animated: false)
-        __label.text = "Clicked at \(indexPath.row)"
+        _label.text = "\(indexPath.row)"
     }
 }
 
@@ -69,30 +63,30 @@ extension PullToRefreshViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         // Dragger 可以拖拉時, 執行 dragger 拖拉.
-        if __dragger?.dragble == true
+        if _dragger?.draggable == true
         {
             return
         }
 
         // 回到 tableView 可以滾動時.
-        let offsetY: CGFloat = scrollView.contentOffset.y
+        let offsetY = scrollView.contentOffset.y
 
-        // 當 TableView 可以滾動, 且 __top 在最上方, 且向下滾到頂...
+        // 當 TableView 可以滾動, 且 _top 在最上方, 且向下滾到頂...
         // 就執行 dragger 拖拉.
         if
-            __top.constant <= __dragger?.minimum ?? 0,
+            _top.constant <= _dragger?.minimum ?? 0,
             offsetY < 0.0
         {
-            __dragger?.dragble = true
+            _dragger?.draggable = true
         }
 
-        // 當 TableView 可以滾動, 且 __top 在最下方, 請向上滾到頂...
+        // 當 TableView 可以滾動, 且 _top 在最下方, 請向上滾到頂...
         // 就執行 dragger 拖拉.
         if
-            __top.constant >= __dragger?.maximum ?? 0,
+            _top.constant >= _dragger?.maximum ?? 0,
             offsetY > 0.0
         {
-            __dragger?.dragble = true
+            _dragger?.draggable = true
         }
     }
 }
@@ -101,24 +95,16 @@ extension PullToRefreshViewController: UIScrollViewDelegate
 
 extension PullToRefreshViewController: DraggerDelegate
 {
-    func dragger(_ dragger: ScrollViewDragger, endWith constraint: NSLayoutConstraint?)
+    func dragger(_ dragger: ScrollViewDragger, quickSwipeTo direction: ScrollViewDragger.SwipeDirection)
     {
-        // 使用 Autolayout 一定有 constraint.
-        guard let constraint: NSLayoutConstraint = constraint
-        else
-        {
-            return
-        }
+        dragger.draggable = false
 
-        dragger.dragble = false
-
-        if constraint.constant < dragger.maximum / 2.0
+        switch direction
         {
-            constraint.constant = dragger.minimum
-        }
-        else
-        {
-            constraint.constant = dragger.maximum
+            case .minimum:
+                _top.constant = dragger.minimum
+            case .maximum:
+                _top.constant = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
@@ -127,26 +113,17 @@ extension PullToRefreshViewController: DraggerDelegate
         }
     }
 
-    func dragger(_ dragger: ScrollViewDragger,
-                 swipeTo direction: ScrollViewDragger.SwipeDirection,
-                 with constraint: NSLayoutConstraint?)
+    func draggerDidFinishDrag(_ dragger: ScrollViewDragger)
     {
-        // 使用 Autolayout 一定有 constraint.
-        guard let constraint: NSLayoutConstraint = constraint
+        dragger.draggable = false
+
+        if _top.constant < dragger.maximum / 2.0
+        {
+            _top.constant = dragger.minimum
+        }
         else
         {
-            return
-        }
-
-        dragger.dragble = false
-
-        switch direction
-        {
-            case .minimum:
-                constraint.constant = dragger.minimum
-
-            case .maximum:
-                constraint.constant = dragger.maximum
+            _top.constant = dragger.maximum
         }
 
         UIView.animate(withDuration: 0.2)
@@ -162,34 +139,30 @@ private extension PullToRefreshViewController
 {
     final func __setupDragger()
     {
-        __tableView.refreshControl = {
-            let temp: UIRefreshControl = UIRefreshControl()
-            temp.addTarget(self, action: #selector(__pullToRefresh(_:)), for: .valueChanged)
-
-            return temp
+        _tableView.refreshControl = {
+            let result = UIRefreshControl()
+            result.addTarget(self, action: #selector(__pullToRefresh(_:)), for: .valueChanged)
+            return result
         }()
 
-        let minimum: CGFloat = 44.0
-        let maximum: CGFloat = 100.0
+        _dragger = ScrollViewDragger(
+            scrollView: _tableView,
+            minimum: 44,
+            maximum: 100,
+            constraint: _top,
+            delegate: self
+        )
 
-        __dragger = ScrollViewDragger(drag: __tableView,
-                                      minimum: minimum,
-                                      maximum: maximum,
-                                      constraint: __top,
-                                      delegate: self)
-
-        __dragger?.dragble = false
+        _dragger?.draggable = false
     }
-}
 
-private extension PullToRefreshViewController
-{
-    @objc final func __pullToRefresh(_ sender: UIRefreshControl)
+    @objc
+    final func __pullToRefresh(_ sender: UIRefreshControl)
     {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5)
         {
             sender.endRefreshing()
-            self.__tableView.reloadData()
+            self._tableView.reloadData()
         }
     }
 }
